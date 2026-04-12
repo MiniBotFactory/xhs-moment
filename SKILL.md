@@ -5,7 +5,7 @@ description: "Xiaohongshu / RED moment capture — turn a brief thought, feeling
 
 # 小红书随手记
 
-一句话变成一条精美的小红书帖子：自动生成简约风配图 + 提炼文案 + 加话题 + 发布。
+一句话变成一条精美的小红书帖子：自动生成极简留白风配图 + 提炼文案 + 加话题 + 发布。
 
 ## Workflow
 
@@ -36,6 +36,7 @@ Produce all of the following before generating images:
 **Quote** (10-30 chars, rendered on image cards):
 - Distilled from the user's input, punchy and standalone
 - No emoji (font cannot render them)
+- Prefer calm, compact phrasing. Do not overcrowd the image with text
 
 **Topics** (3-5, comma-separated, no # prefix):
 - Mix broad + niche tags
@@ -54,6 +55,13 @@ Produce all of the following before generating images:
 
 Default to `warm` when unsure.
 
+**Visual rules**:
+- Prefer large whitespace and low information density
+- Use at most 2-3 visual colors in one card
+- Keep typography restrained, readable, not shouty
+- Use golden-ratio composition when placing text blocks or color blocks
+- If the user does not ask for a specific look, let the generator randomly pick a layout style
+
 ### Step 3: Generate images
 
 ```bash
@@ -61,6 +69,7 @@ python3 scripts/generate.py \
   --text "quote text" \
   --subtitle "date or signature" \
   --palette warm \
+  --style auto \
   --hashtags "topic1,topic2,topic3" \
   --output-dir /tmp/xhs-moment
 ```
@@ -69,9 +78,16 @@ python3 scripts/generate.py \
 > `python3 <skill-dir>/scripts/generate.py ...`
 
 Outputs 3 JPEG files (1080x1440):
-1. **Cover** — large color block + quote
-2. **Quote card** — decorative quotation marks + centered text
-3. **Topics card** — hashtag pill badges
+1. **Cover** — calm headline cover, usually using golden-ratio composition
+2. **Quote card** — secondary text card with more whitespace
+3. **Topics card** — sparse hashtag card
+
+Supported layout styles:
+- `golden-split` — top-heavy 0.618 split, upper block large, lower area small
+- `floating-card` — small text block floating in a large quiet canvas
+- `quiet-corner` — text anchored near a corner / margin with strong whitespace
+- `centered-balance` — centered composition around golden lines
+- `auto` — randomly pick one of the styles above
 
 If the user provided an image, put their image first, generated cards after.
 
@@ -79,6 +95,7 @@ If the user provided an image, put their image first, generated cards after.
 
 Show the user:
 - Title, body text, palette chosen
+- Chosen layout style
 - Image file paths (use Read tool to display the cover)
 - Topic tags
 - Note: "默认存为草稿，说「发布」可直接发布"
