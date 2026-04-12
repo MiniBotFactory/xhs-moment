@@ -66,6 +66,49 @@ ticket-stub       — 克制票券感，更像小红书图文封面
 margin-label      — 侧边标签条，偏编辑感
 ```
 
+### 不同版式模式示例
+
+下面这组示例使用同一句文案生成，方便直接对比版式差异：
+`很多事不是对错，是选择`
+
+#### 1) golden-split
+
+0.618 黄金分割，上大下小，适合做更稳重的标题封面。
+
+<img src="examples/golden-split/moment-1.jpg" width="220" />
+
+#### 2) floating-card
+
+浮动文本卡，画面更轻，留白感更强。
+
+<img src="examples/floating-card/moment-1.jpg" width="220" />
+
+#### 3) quiet-corner
+
+文字落在边角，安静克制，适合偏思考感的内容。
+
+<img src="examples/quiet-corner/moment-1.jpg" width="220" />
+
+#### 4) centered-balance
+
+居中平衡，更中性，适合稳定、规整的视觉表达。
+
+<img src="examples/centered-balance/moment-1.jpg" width="220" />
+
+#### 5) ticket-stub
+
+票券式结构，更像小红书原生封面，也更适合当默认主力版式。
+
+<img src="examples/ticket-stub/moment-1.jpg" width="220" />
+
+#### 6) margin-label
+
+侧边标签条，编辑感更强，适合思考、表达、观点类内容。
+
+<img src="examples/margin-label/moment-1.jpg" width="220" />
+
+> 每种模式实际都会输出 3 张图（封面图 / 金句卡 / 话题卡），上面展示的是各模式的封面图 `moment-1.jpg`。
+
 `auto` 的权重倾向：
 - 基础版式高频：`ticket-stub`、`margin-label`
 - 基础版式中频：`quiet-corner`
@@ -145,9 +188,15 @@ xhs-moment/
 ├── scripts/
 │   └── generate.py       # 图片生成脚本（Pillow）
 └── examples/
-    ├── warm.jpg          # warm 配色示例
-    ├── cool.jpg          # cool 配色示例
-    └── bold.jpg          # bold 配色示例
+    ├── warm.jpg          # 历史配色示例
+    ├── cool.jpg          # 历史配色示例
+    ├── bold.jpg          # 历史配色示例
+    ├── golden-split/     # 版式示例（3 张）
+    ├── floating-card/    # 版式示例（3 张）
+    ├── quiet-corner/     # 版式示例（3 张）
+    ├── centered-balance/ # 版式示例（3 张）
+    ├── ticket-stub/      # 版式示例（3 张）
+    └── margin-label/     # 版式示例（3 张）
 ```
 
 ## License
