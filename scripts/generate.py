@@ -189,6 +189,34 @@ PALETTE_WEIGHTS_BY_STYLE = {
     },
 }
 
+MOOD_CHOICES = ["auto", "thinking", "healing", "attitude", "romantic", "fresh", "neutral"]
+
+MOOD_KEYWORDS = {
+    "thinking": ["思考", "判断", "选择", "认知", "复盘", "问题", "逻辑", "决定", "为什么", "how", "why", "think"],
+    "healing": ["治愈", "温柔", "舒服", "安静", "晚安", "松弛", "放松", "日常", "平静", "夕阳", "咖啡"],
+    "attitude": ["不", "别", "必须", "狠狠", "清醒", "边界", "态度", "自信", "表达", "野心", "酷"],
+    "romantic": ["浪漫", "喜欢", "想念", "花", "月亮", "心动", "温柔", "少女", "梦", "春天"],
+    "fresh": ["元气", "开心", "出发", "早安", "活力", "新鲜", "轻盈", "清晨", "晴天", "夏天"],
+}
+
+STYLE_BOOSTS_BY_MOOD = {
+    "thinking": {"margin-label": 4, "quiet-corner": 3, "centered-balance": 2, "ticket-stub": 1, "floating-card": 1, "golden-split": 1},
+    "healing": {"ticket-stub": 4, "floating-card": 2, "quiet-corner": 2, "golden-split": 2, "centered-balance": 1, "margin-label": 1},
+    "attitude": {"margin-label": 4, "ticket-stub": 2, "golden-split": 2, "quiet-corner": 1, "centered-balance": 1, "floating-card": 1},
+    "romantic": {"floating-card": 3, "ticket-stub": 2, "golden-split": 2, "quiet-corner": 1, "centered-balance": 1, "margin-label": 1},
+    "fresh": {"floating-card": 3, "ticket-stub": 2, "golden-split": 2, "centered-balance": 2, "quiet-corner": 1, "margin-label": 1},
+    "neutral": {name: 1 for name in STYLE_CHOICES},
+}
+
+PALETTE_BOOSTS_BY_MOOD = {
+    "thinking": {"cool": 3, "elegant": 2, "warm": 1, "fresh": 1, "dreamy": 1, "bold": 1},
+    "healing": {"warm": 3, "elegant": 2, "fresh": 2, "cool": 1, "dreamy": 1, "bold": 1},
+    "attitude": {"bold": 3, "cool": 2, "warm": 1, "elegant": 1, "fresh": 1, "dreamy": 1},
+    "romantic": {"dreamy": 3, "elegant": 2, "warm": 2, "cool": 1, "fresh": 1, "bold": 1},
+    "fresh": {"fresh": 3, "warm": 2, "cool": 1, "elegant": 1, "dreamy": 1, "bold": 1},
+    "neutral": {name: 1 for name in PALETTE_CHOICES},
+}
+
 
 def _resolve_font(style: str, size: int):
     system = platform.system()
@@ -284,10 +312,11 @@ def sparse_badges(d, tags: List[str], p: dict, x: int, y: int, max_width: int, a
         current_y += badge_h + row_gap
 
 
-def add_meta(output_dir: str, palette: str, style: str, text: str, subtitle: str, tags: List[str]):
+def add_meta(output_dir: str, palette: str, style: str, mood: str, text: str, subtitle: str, tags: List[str]):
     meta = {
         "palette": palette,
         "style": style,
+        "mood": mood,
         "text": text,
         "subtitle": subtitle,
         "hashtags": tags,
@@ -562,24 +591,37 @@ STYLE_RENDERERS: dict[str, Tuple[Callable, Callable, Callable]] = {
 }
 
 
-def choose_style(style: str, seed: str) -> str:
+def infer_mood(text: str, tags: List[str]) -> str:
+    corpus = f"{text} {' '.join(tags)}".lower()
+    scores = {mood: 0 for mood in MOOD_KEYWORDS}
+    for mood, keywords in MOOD_KEYWORDS.items():
+        for kw in keywords:
+            if kw.lower() in corpus:
+                scores[mood] += 1
+    best_mood = max(scores, key=scores.get)
+    return best_mood if scores[best_mood] > 0 else "neutral"
+
+
+def choose_style(style: str, mood: str, seed: str) -> str:
     if style != "auto":
         return style
     rng = random.Random()
     if seed:
         rng.seed(seed)
-    weights = [STYLE_WEIGHTS[name] for name in STYLE_CHOICES]
+    mood_boosts = STYLE_BOOSTS_BY_MOOD.get(mood, STYLE_BOOSTS_BY_MOOD["neutral"])
+    weights = [STYLE_WEIGHTS[name] * mood_boosts.get(name, 1) for name in STYLE_CHOICES]
     return rng.choices(STYLE_CHOICES, weights=weights, k=1)[0]
 
 
-def choose_palette(palette: str, style: str, seed: str) -> str:
+def choose_palette(palette: str, style: str, mood: str, seed: str) -> str:
     if palette != "auto":
         return palette
     rng = random.Random()
     if seed:
-        rng.seed(f"{seed}::palette::{style}")
-    weights_by_palette = PALETTE_WEIGHTS_BY_STYLE.get(style, {})
-    weights = [weights_by_palette.get(name, 1) for name in PALETTE_CHOICES]
+        rng.seed(f"{seed}::palette::{style}::{mood}")
+    weights_by_style = PALETTE_WEIGHTS_BY_STYLE.get(style, {})
+    mood_boosts = PALETTE_BOOSTS_BY_MOOD.get(mood, PALETTE_BOOSTS_BY_MOOD["neutral"])
+    weights = [weights_by_style.get(name, 1) * mood_boosts.get(name, 1) for name in PALETTE_CHOICES]
     return rng.choices(PALETTE_CHOICES, weights=weights, k=1)[0]
 
 
@@ -587,8 +629,9 @@ def main():
     ap = argparse.ArgumentParser(description="Generate minimalist Xiaohongshu text cards")
     ap.add_argument("--text", required=True, help="Quote / key phrase")
     ap.add_argument("--subtitle", default="", help="Subtitle (date / signature)")
-    ap.add_argument("--palette", default="auto", choices=["auto"] + PALETTE_CHOICES, help="Palette. auto = weighted pick based on style")
+    ap.add_argument("--palette", default="auto", choices=["auto"] + PALETTE_CHOICES, help="Palette. auto = weighted pick based on style and mood")
     ap.add_argument("--style", default="auto", choices=["auto"] + STYLE_CHOICES, help="Layout style. auto = weighted pick")
+    ap.add_argument("--mood", default="auto", choices=MOOD_CHOICES, help="Mood. auto = infer from text and hashtags")
     ap.add_argument("--seed", default="", help="Optional random seed for reproducible auto style")
     ap.add_argument("--hashtags", default="", help="Comma-separated hashtags")
     ap.add_argument("--output-dir", default="/tmp/xhs-moment")
@@ -598,8 +641,9 @@ def main():
     tags = [t.strip() for t in args.hashtags.split(",") if t.strip()] if args.hashtags else ["随手记"]
     subtitle = args.subtitle or "随手记"
     seed_basis = args.seed or args.text
-    style = choose_style(args.style, seed_basis)
-    palette_name = choose_palette(args.palette, style, seed_basis)
+    mood = infer_mood(args.text, tags) if args.mood == "auto" else args.mood
+    style = choose_style(args.style, mood, seed_basis)
+    palette_name = choose_palette(args.palette, style, mood, seed_basis)
     palette = PALETTES[palette_name]
     cover_fn, quote_fn, topics_fn = STYLE_RENDERERS[style]
 
@@ -612,7 +656,7 @@ def main():
     cover_fn(args.text, subtitle, palette, outputs[0])
     quote_fn(args.text, palette, outputs[1])
     topics_fn(tags, palette, outputs[2])
-    add_meta(args.output_dir, palette_name, style, args.text, subtitle, tags)
+    add_meta(args.output_dir, palette_name, style, mood, args.text, subtitle, tags)
 
     print(outputs[0])
     print(outputs[1])

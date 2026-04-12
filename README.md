@@ -40,7 +40,7 @@ cp -r xhs-moment ~/.claude/skills/
 # "/xhs-moment 不联系的朋友只是通讯录里的名字"
 ```
 
-AI 会自动：分析情绪 → 按版式偏好带权选配色 → 带权随机挑一种极简版式 → 生成金句 → 出 3 张留白风配图 → 写文案 → 发布。
+AI 会自动：分析情绪 → 按语义倾向挑版式 → 按版式与情绪联动挑配色 → 生成金句 → 出 3 张留白风配图 → 写文案 → 发布。
 
 ## 6 套配色
 
@@ -67,13 +67,17 @@ margin-label      — 侧边标签条，偏编辑感
 ```
 
 `auto` 的权重倾向：
-- 版式高频：`ticket-stub`、`margin-label`
-- 版式中频：`quiet-corner`
-- 版式低频：`golden-split`、`floating-card`、`centered-balance`
-- 配色会按版式联动，比如：
+- 基础版式高频：`ticket-stub`、`margin-label`
+- 基础版式中频：`quiet-corner`
+- 基础版式低频：`golden-split`、`floating-card`、`centered-balance`
+- 语义会进一步干预版式，例如：
+  - 思考 / 认知类，更偏 `margin-label` / `quiet-corner`
+  - 治愈 / 日常类，更偏 `ticket-stub` / `floating-card`
+  - 态度 / 表达类，更偏 `margin-label`
+- 配色也会按版式与情绪联动，比如：
   - `ticket-stub` 更偏 `warm` / `elegant`
   - `margin-label` 更偏 `cool` / `bold`
-  - `quiet-corner` 更偏 `warm` / `cool` / `elegant`
+  - 浪漫类更容易落到 `dreamy`
 
 输出文件：
 
@@ -81,7 +85,7 @@ margin-label      — 侧边标签条，偏编辑感
 moment-1.jpg — 封面图
 moment-2.jpg — 金句卡
 moment-3.jpg — 话题卡
-meta.json    — 本次使用的 palette/style 元信息
+meta.json    — 本次使用的 palette/style/mood 元信息
 ```
 
 <p align="center">
@@ -100,8 +104,9 @@ python3 scripts/generate.py [OPTIONS]
 
 可选:
   --subtitle TEXT       副标题（日期、署名等，默认"随手记"）
-  --palette PALETTE     配色方案: auto|warm|cool|fresh|elegant|dreamy|bold（默认 auto，且 auto 会按版式带权联动）
+  --palette PALETTE     配色方案: auto|warm|cool|fresh|elegant|dreamy|bold（默认 auto，且 auto 会按版式与情绪联动）
   --style STYLE         版式: auto|golden-split|floating-card|quiet-corner|centered-balance|ticket-stub|margin-label（默认 auto，且 auto 为带权随机）
+  --mood MOOD           情绪语义: auto|thinking|healing|attitude|romantic|fresh|neutral（默认 auto）
   --seed TEXT           可选，给 auto 一个固定随机种子，便于复现
   --hashtags TEXT       话题标签，逗号分隔（默认"随手记"）
   --output-dir DIR      输出目录（默认 /tmp/xhs-moment）

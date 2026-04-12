@@ -60,7 +60,7 @@ Default to `warm` when unsure.
 - Use at most 2-3 visual colors in one card
 - Keep typography restrained, readable, not shouty
 - Use golden-ratio composition when placing text blocks or color blocks
-- If the user does not ask for a specific look, let the generator use weighted random layout selection and style-aware palette selection
+- If the user does not ask for a specific look, let the generator infer mood from the text, then use mood-aware layout selection and style-aware palette selection
 
 ### Step 3: Generate images
 
@@ -89,8 +89,8 @@ Supported layout styles:
 - `centered-balance` — centered composition around golden lines
 - `ticket-stub` — restrained ticket / stub structure, more Xiaohongshu-cover-like
 - `margin-label` — side label strip with a calm editorial feel
-- `auto` — weighted random selection, favoring `ticket-stub` / `margin-label`, then `quiet-corner`
-- Palette `auto` — weighted selection linked to style, so calmer layouts get calmer palette defaults
+- `auto` — weighted random selection with mood-aware bias, still generally favoring `ticket-stub` / `margin-label`, then `quiet-corner`
+- Palette `auto` — weighted selection linked to both style and mood
 
 If the user provided an image, put their image first, generated cards after.
 
@@ -98,7 +98,7 @@ If the user provided an image, put their image first, generated cards after.
 
 Show the user:
 - Title, body text, palette chosen
-- Chosen layout style
+- Chosen layout style and inferred mood
 - Image file paths (use Read tool to display the cover)
 - Topic tags
 - Note: "默认存为草稿，说「发布」可直接发布"
