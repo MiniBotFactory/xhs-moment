@@ -60,7 +60,7 @@ Default to `warm` when unsure.
 - Use at most 2-3 visual colors in one card
 - Keep typography restrained, readable, not shouty
 - Use golden-ratio composition when placing text blocks or color blocks
-- If the user does not ask for a specific look, let the generator use weighted random layout selection
+- If the user does not ask for a specific look, let the generator use weighted random layout selection and style-aware palette selection
 
 ### Step 3: Generate images
 
@@ -68,7 +68,7 @@ Default to `warm` when unsure.
 python3 scripts/generate.py \
   --text "quote text" \
   --subtitle "date or signature" \
-  --palette warm \
+  --palette auto \
   --style auto \
   --hashtags "topic1,topic2,topic3" \
   --output-dir /tmp/xhs-moment
@@ -90,6 +90,7 @@ Supported layout styles:
 - `ticket-stub` — restrained ticket / stub structure, more Xiaohongshu-cover-like
 - `margin-label` — side label strip with a calm editorial feel
 - `auto` — weighted random selection, favoring `ticket-stub` / `margin-label`, then `quiet-corner`
+- Palette `auto` — weighted selection linked to style, so calmer layouts get calmer palette defaults
 
 If the user provided an image, put their image first, generated cards after.
 

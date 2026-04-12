@@ -13,7 +13,7 @@ pip install Pillow
 # 2. 生成配图
 python3 scripts/generate.py \
   --text "生活不是等待暴风雨过去，而是学会在雨中起舞" \
-  --palette warm \
+  --palette auto \
   --style auto \
   --hashtags "生活感悟,治愈系,日常" \
   --output-dir ./output
@@ -40,7 +40,7 @@ cp -r xhs-moment ~/.claude/skills/
 # "/xhs-moment 不联系的朋友只是通讯录里的名字"
 ```
 
-AI 会自动：分析情绪 → 选配色 → 带权随机挑一种极简版式 → 生成金句 → 出 3 张留白风配图 → 写文案 → 发布。
+AI 会自动：分析情绪 → 按版式偏好带权选配色 → 带权随机挑一种极简版式 → 生成金句 → 出 3 张留白风配图 → 写文案 → 发布。
 
 ## 6 套配色
 
@@ -67,9 +67,13 @@ margin-label      — 侧边标签条，偏编辑感
 ```
 
 `auto` 的权重倾向：
-- 高频：`ticket-stub`、`margin-label`
-- 中频：`quiet-corner`
-- 低频：`golden-split`、`floating-card`、`centered-balance`
+- 版式高频：`ticket-stub`、`margin-label`
+- 版式中频：`quiet-corner`
+- 版式低频：`golden-split`、`floating-card`、`centered-balance`
+- 配色会按版式联动，比如：
+  - `ticket-stub` 更偏 `warm` / `elegant`
+  - `margin-label` 更偏 `cool` / `bold`
+  - `quiet-corner` 更偏 `warm` / `cool` / `elegant`
 
 输出文件：
 
@@ -96,7 +100,7 @@ python3 scripts/generate.py [OPTIONS]
 
 可选:
   --subtitle TEXT       副标题（日期、署名等，默认"随手记"）
-  --palette PALETTE     配色方案: warm|cool|fresh|elegant|dreamy|bold（默认 warm）
+  --palette PALETTE     配色方案: auto|warm|cool|fresh|elegant|dreamy|bold（默认 auto，且 auto 会按版式带权联动）
   --style STYLE         版式: auto|golden-split|floating-card|quiet-corner|centered-balance|ticket-stub|margin-label（默认 auto，且 auto 为带权随机）
   --seed TEXT           可选，给 auto 一个固定随机种子，便于复现
   --hashtags TEXT       话题标签，逗号分隔（默认"随手记"）

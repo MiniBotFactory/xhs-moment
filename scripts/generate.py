@@ -136,6 +136,59 @@ STYLE_WEIGHTS = {
     "margin-label": 4,
 }
 
+PALETTE_CHOICES = list(PALETTES.keys())
+
+PALETTE_WEIGHTS_BY_STYLE = {
+    "golden-split": {
+        "warm": 3,
+        "cool": 2,
+        "fresh": 1,
+        "elegant": 2,
+        "dreamy": 1,
+        "bold": 1,
+    },
+    "floating-card": {
+        "warm": 2,
+        "cool": 2,
+        "fresh": 2,
+        "elegant": 1,
+        "dreamy": 1,
+        "bold": 1,
+    },
+    "quiet-corner": {
+        "warm": 3,
+        "cool": 3,
+        "fresh": 1,
+        "elegant": 2,
+        "dreamy": 1,
+        "bold": 1,
+    },
+    "centered-balance": {
+        "warm": 2,
+        "cool": 3,
+        "fresh": 1,
+        "elegant": 2,
+        "dreamy": 1,
+        "bold": 1,
+    },
+    "ticket-stub": {
+        "warm": 4,
+        "cool": 1,
+        "fresh": 1,
+        "elegant": 3,
+        "dreamy": 1,
+        "bold": 1,
+    },
+    "margin-label": {
+        "warm": 1,
+        "cool": 4,
+        "fresh": 1,
+        "elegant": 2,
+        "dreamy": 1,
+        "bold": 3,
+    },
+}
+
 
 def _resolve_font(style: str, size: int):
     system = platform.system()
@@ -519,22 +572,35 @@ def choose_style(style: str, seed: str) -> str:
     return rng.choices(STYLE_CHOICES, weights=weights, k=1)[0]
 
 
+def choose_palette(palette: str, style: str, seed: str) -> str:
+    if palette != "auto":
+        return palette
+    rng = random.Random()
+    if seed:
+        rng.seed(f"{seed}::palette::{style}")
+    weights_by_palette = PALETTE_WEIGHTS_BY_STYLE.get(style, {})
+    weights = [weights_by_palette.get(name, 1) for name in PALETTE_CHOICES]
+    return rng.choices(PALETTE_CHOICES, weights=weights, k=1)[0]
+
+
 def main():
     ap = argparse.ArgumentParser(description="Generate minimalist Xiaohongshu text cards")
     ap.add_argument("--text", required=True, help="Quote / key phrase")
     ap.add_argument("--subtitle", default="", help="Subtitle (date / signature)")
-    ap.add_argument("--palette", default="warm", choices=list(PALETTES.keys()))
-    ap.add_argument("--style", default="auto", choices=["auto"] + STYLE_CHOICES, help="Layout style. auto = random pick")
+    ap.add_argument("--palette", default="auto", choices=["auto"] + PALETTE_CHOICES, help="Palette. auto = weighted pick based on style")
+    ap.add_argument("--style", default="auto", choices=["auto"] + STYLE_CHOICES, help="Layout style. auto = weighted pick")
     ap.add_argument("--seed", default="", help="Optional random seed for reproducible auto style")
     ap.add_argument("--hashtags", default="", help="Comma-separated hashtags")
     ap.add_argument("--output-dir", default="/tmp/xhs-moment")
     args = ap.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
-    palette = PALETTES[args.palette]
     tags = [t.strip() for t in args.hashtags.split(",") if t.strip()] if args.hashtags else ["随手记"]
     subtitle = args.subtitle or "随手记"
-    style = choose_style(args.style, args.seed or args.text)
+    seed_basis = args.seed or args.text
+    style = choose_style(args.style, seed_basis)
+    palette_name = choose_palette(args.palette, style, seed_basis)
+    palette = PALETTES[palette_name]
     cover_fn, quote_fn, topics_fn = STYLE_RENDERERS[style]
 
     outputs = [
@@ -546,7 +612,7 @@ def main():
     cover_fn(args.text, subtitle, palette, outputs[0])
     quote_fn(args.text, palette, outputs[1])
     topics_fn(tags, palette, outputs[2])
-    add_meta(args.output_dir, args.palette, style, args.text, subtitle, tags)
+    add_meta(args.output_dir, palette_name, style, args.text, subtitle, tags)
 
     print(outputs[0])
     print(outputs[1])
