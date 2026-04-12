@@ -127,6 +127,15 @@ STYLE_CHOICES = [
     "margin-label",
 ]
 
+STYLE_WEIGHTS = {
+    "golden-split": 1,
+    "floating-card": 1,
+    "quiet-corner": 3,
+    "centered-balance": 1,
+    "ticket-stub": 4,
+    "margin-label": 4,
+}
+
 
 def _resolve_font(style: str, size: int):
     system = platform.system()
@@ -506,7 +515,8 @@ def choose_style(style: str, seed: str) -> str:
     rng = random.Random()
     if seed:
         rng.seed(seed)
-    return rng.choice(STYLE_CHOICES)
+    weights = [STYLE_WEIGHTS[name] for name in STYLE_CHOICES]
+    return rng.choices(STYLE_CHOICES, weights=weights, k=1)[0]
 
 
 def main():

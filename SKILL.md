@@ -60,7 +60,7 @@ Default to `warm` when unsure.
 - Use at most 2-3 visual colors in one card
 - Keep typography restrained, readable, not shouty
 - Use golden-ratio composition when placing text blocks or color blocks
-- If the user does not ask for a specific look, let the generator randomly pick a layout style
+- If the user does not ask for a specific look, let the generator use weighted random layout selection
 
 ### Step 3: Generate images
 
@@ -89,7 +89,7 @@ Supported layout styles:
 - `centered-balance` — centered composition around golden lines
 - `ticket-stub` — restrained ticket / stub structure, more Xiaohongshu-cover-like
 - `margin-label` — side label strip with a calm editorial feel
-- `auto` — randomly pick one of the styles above
+- `auto` — weighted random selection, favoring `ticket-stub` / `margin-label`, then `quiet-corner`
 
 If the user provided an image, put their image first, generated cards after.
 
