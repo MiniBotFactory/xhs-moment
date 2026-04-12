@@ -123,6 +123,8 @@ STYLE_CHOICES = [
     "floating-card",
     "quiet-corner",
     "centered-balance",
+    "ticket-stub",
+    "margin-label",
 ]
 
 
@@ -365,6 +367,89 @@ def quote_centered_balance(text: str, p: dict, path: str):
     img.save(path, quality=95)
 
 
+# ----- extra layout family -----
+def cover_ticket_stub(text: str, subtitle: str, p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["bg"])
+    d = ImageDraw.Draw(img)
+    card = [90, 150, W - 90, int(H * 0.76)]
+    draw_rounded_rect(d, card, None, radius=30, outline=p["block"], width=2)
+    d.rectangle([card[0], card[1], card[0] + 88, card[3]], fill=p["block"])
+    d.text((card[0] + 44, card[1] + 60), "01", font=font(22, bold=True), fill=p["text_light"], anchor="mm")
+    d.line([card[0] + 88, card[1] + 50, card[0] + 88, card[3] - 50], fill=p["accent"], width=2)
+
+    inner_w = card[2] - card[0] - 240
+    fnt, lines, size = fit_text(text, inner_w, 4, 40, 28)
+    gap = int(size * 1.55)
+    start_y = int(card[1] + (card[3] - card[1]) * 0.38)
+    draw_lines_left(d, lines, fnt, card[0] + 150, start_y, gap, p["text_dark"])
+    d.text((card[0] + 150, card[3] - 75), subtitle, font=font(24), fill=p["muted"], anchor="lm")
+    d.text((card[2] - 50, card[3] - 75), "stub", font=font(20), fill=p["muted"], anchor="rm")
+    img.save(path, quality=95)
+
+
+def quote_ticket_stub(text: str, p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["bg"])
+    d = ImageDraw.Draw(img)
+    panel = [120, 180, W - 120, int(H * 0.72)]
+    draw_rounded_rect(d, panel, p["block"], radius=26)
+    for y in range(panel[1] + 80, panel[3] - 40, 110):
+        d.ellipse([panel[0] - 14, y - 14, panel[0] + 14, y + 14], fill=p["bg"])
+        d.ellipse([panel[2] - 14, y - 14, panel[2] + 14, y + 14], fill=p["bg"])
+    fnt, lines, size = fit_text(text, W - 360, 4, 36, 26)
+    gap = int(size * 1.6)
+    total_h = gap * (len(lines) - 1)
+    start_y = (panel[1] + panel[3]) // 2 - total_h // 2
+    draw_lines_center(d, lines, fnt, W // 2, start_y, gap, p["text_light"])
+    img.save(path, quality=95)
+
+
+def topics_ticket_stub(tags: List[str], p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["bg"])
+    d = ImageDraw.Draw(img)
+    d.rectangle([120, 150, W - 120, 212], fill=p["block"])
+    d.text((150, 181), "TOPICS", font=font(22, bold=True), fill=p["text_light"], anchor="lm")
+    d.line([120, 260, W - 120, 260], fill=p["muted"], width=1)
+    sparse_badges(d, tags, p, 120, 320, W - 240, align="left")
+    img.save(path, quality=95)
+
+
+def cover_margin_label(text: str, subtitle: str, p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["bg"])
+    d = ImageDraw.Draw(img)
+    d.rectangle([96, 110, 230, H - 110], fill=p["block"])
+    d.text((163, 180), "moment", font=font(20), fill=p["text_light"], anchor="mm")
+    d.line([230, 110, 230, H - 110], fill=p["accent"], width=3)
+
+    fnt, lines, size = fit_text(text, W - 390, 4, 40, 28)
+    gap = int(size * 1.55)
+    start_y = GOLDEN_Y - gap
+    draw_lines_left(d, lines, fnt, 300, start_y, gap, p["text_dark"])
+    d.text((300, H - 140), subtitle, font=font(24), fill=p["muted"], anchor="lm")
+    img.save(path, quality=95)
+
+
+def quote_margin_label(text: str, p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["bg"])
+    d = ImageDraw.Draw(img)
+    d.rectangle([100, 100, 170, H - 100], fill=p["accent"])
+    d.text((135, 150), "QUOTE", font=font(18, bold=True), fill=p["text_dark"], anchor="mm")
+    fnt, lines, size = fit_text(text, W - 360, 4, 36, 26)
+    gap = int(size * 1.6)
+    start_y = GOLDEN_Y - int(gap * 1.1)
+    draw_lines_left(d, lines, fnt, 240, start_y, gap, p["text_dark"])
+    d.line([240, GOLDEN_Y + 130, W - 140, GOLDEN_Y + 130], fill=p["muted"], width=1)
+    img.save(path, quality=95)
+
+
+def topics_margin_label(tags: List[str], p: dict, path: str):
+    img = Image.new("RGB", (W, H), p["block"])
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 180, H], fill=p["accent"])
+    d.text((90, 170), "tags", font=font(22, bold=True), fill=p["text_dark"], anchor="mm")
+    sparse_badges(d, tags, {**p, "bg": p["bg"], "text_dark": p["text_dark"]}, 240, 280, W - 320, align="left")
+    img.save(path, quality=95)
+
+
 # ----- topics card layouts -----
 def topics_golden_split(tags: List[str], p: dict, path: str):
     img = Image.new("RGB", (W, H), p["block"])
@@ -410,6 +495,8 @@ STYLE_RENDERERS: dict[str, Tuple[Callable, Callable, Callable]] = {
     "floating-card": (cover_floating_card, quote_floating_card, topics_floating_card),
     "quiet-corner": (cover_quiet_corner, quote_quiet_corner, topics_quiet_corner),
     "centered-balance": (cover_centered_balance, quote_centered_balance, topics_centered_balance),
+    "ticket-stub": (cover_ticket_stub, quote_ticket_stub, topics_ticket_stub),
+    "margin-label": (cover_margin_label, quote_margin_label, topics_margin_label),
 }
 
 

@@ -87,6 +87,8 @@ Supported layout styles:
 - `floating-card` — small text block floating in a large quiet canvas
 - `quiet-corner` — text anchored near a corner / margin with strong whitespace
 - `centered-balance` — centered composition around golden lines
+- `ticket-stub` — restrained ticket / stub structure, more Xiaohongshu-cover-like
+- `margin-label` — side label strip with a calm editorial feel
 - `auto` — randomly pick one of the styles above
 
 If the user provided an image, put their image first, generated cards after.

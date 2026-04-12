@@ -62,6 +62,8 @@ golden-split      — 0.618 黄金分割，上大下小
 floating-card     — 浮动文本卡，大留白
 quiet-corner      — 角落落字，克制安静
 centered-balance  — 居中平衡，围绕黄金线
+ticket-stub       — 克制票券感，更像小红书图文封面
+margin-label      — 侧边标签条，偏编辑感
 ```
 
 输出文件：
@@ -90,7 +92,7 @@ python3 scripts/generate.py [OPTIONS]
 可选:
   --subtitle TEXT       副标题（日期、署名等，默认"随手记"）
   --palette PALETTE     配色方案: warm|cool|fresh|elegant|dreamy|bold（默认 warm）
-  --style STYLE         版式: auto|golden-split|floating-card|quiet-corner|centered-balance（默认 auto）
+  --style STYLE         版式: auto|golden-split|floating-card|quiet-corner|centered-balance|ticket-stub|margin-label（默认 auto）
   --seed TEXT           可选，给 auto 一个固定随机种子，便于复现
   --hashtags TEXT       话题标签，逗号分隔（默认"随手记"）
   --output-dir DIR      输出目录（默认 /tmp/xhs-moment）
