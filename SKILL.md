@@ -83,13 +83,12 @@ Outputs 3 JPEG files (1080x1440):
 3. **Topics card** — sparse hashtag card
 
 Supported layout styles:
-- `golden-split` — top-heavy 0.618 split, upper block large, lower area small
-- `floating-card` — small text block floating in a large quiet canvas
-- `quiet-corner` — text anchored near a corner / margin with strong whitespace
-- `centered-balance` — centered composition around golden lines
-- `ticket-stub` — restrained ticket / stub structure, more Xiaohongshu-cover-like
-- `margin-label` — side label strip with a calm editorial feel
-- `auto` — weighted random selection with mood-aware bias, still generally favoring `ticket-stub` / `margin-label`, then `quiet-corner`
+- `poster` — full-bleed color block, text as cinematic hero, film-grain texture
+- `split` — golden-ratio horizontal division, editorial feel
+- `card` — floating rounded card on light background, gallery elegance
+- `memo` — iOS Notes screenshot aesthetic, white bg + header bar + text highlights
+- `highlight` — bold accent-color quote card with sparkle decorations + CTA
+- `auto` — weighted random selection with mood-aware bias
 - Palette `auto` — weighted selection linked to both style and mood
 
 If the user provided an image, put their image first, generated cards after.
